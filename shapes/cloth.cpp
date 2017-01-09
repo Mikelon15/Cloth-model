@@ -18,8 +18,11 @@ Cloth::Cloth(){
       verts[x][y].normal = vec3(0, 0, 1);
       verts[x][y].texture = vec2((float)x/(length-1.), (float)y/(length-1.));
       verts[x][y].isStatic = true;
+      //create horizontal and vertical springs
+      
     }
   }
+
   //this initializes the vbo information, but vertices and normals
   // will need need to be updated in the vbo after every update
   vertices = new vec3[nverts];

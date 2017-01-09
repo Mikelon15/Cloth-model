@@ -28,17 +28,17 @@ private:
   // QVector3D getObjColForces(Vertex* v, Sphere* spheres, int amount);
 
 protected:
-  int length, width, nverts, ninds;
-  unsigned short* indices;
+  Vertex** verts;
   vec4 m_color;
   QVector3D gravity;
-  Vertex** verts;
-  bool firstDraw;
+  int length, width, data, nverts, ninds;
 
+  bool firstDraw;
   vec3* vertices;
   vec3* normals;
   vec2* texture;
-  QOpenGLBuffer *m_vbo;
+  unsigned short* indices;
   QOpenGLBuffer *m_ebo;
+  QOpenGLBuffer *m_vbo;
   QOpenGLVertexArrayObject *m_vao;
 };
