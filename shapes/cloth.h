@@ -28,7 +28,7 @@ private:
   // QVector3D getObjColForces(Vertex* v, Sphere* spheres, int amount);
 
 protected:
-  Vertex** verts;
+  Vertex*** verts;
   vec4 m_color;
   QVector3D gravity;
   int length, width, data, nverts, ninds;

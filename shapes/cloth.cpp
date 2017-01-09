@@ -6,20 +6,20 @@ Cloth::Cloth(){
   length = 14;
   width = 14;
   nverts = length*width;
-  verts = new Vertex*[width];
+  verts = new Vertex**[width];
   for (int x = 0; x < width; x++){
-    verts[x] = new Vertex[length];
+    verts[x] = new Vertex*[length];
     for (int y = 0; y < length; y++){
-      verts[x][y] = Vertex();
-      verts[x][y].id = x * width + y;
-      verts[x][y].position = vec3(x, y, 0);
-      verts[x][y].velocity = vec3(0, 0, 0);
-      verts[x][y].force = vec3(0, 0, 0);
-      verts[x][y].normal = vec3(0, 0, 1);
-      verts[x][y].texture = vec2((float)x/(length-1.), (float)y/(length-1.));
-      verts[x][y].isStatic = true;
+      verts[x][y] = new Vertex();
+      verts[x][y]->id = x * width + y;
+      verts[x][y]->position = vec3(x, y, 0);
+      verts[x][y]->velocity = vec3(0, 0, 0);
+      verts[x][y]->force = vec3(0, 0, 0);
+      verts[x][y]->normal = vec3(0, 0, 1);
+      verts[x][y]->texture = vec2((float)x/(length-1.), (float)y/(length-1.));
+      verts[x][y]->isStatic = true;
       //create horizontal and vertical springs
-      
+
     }
   }
 
@@ -30,9 +30,9 @@ Cloth::Cloth(){
   texture  = new vec2[nverts];
   for (int x = 0; x < width; x++){
     for (int y = 0; y < length; y++){
-      vertices[x*width+y] = verts[x][y].position;
-      normals[x*width+y]  = verts[x][y].normal;
-      texture[x*width+y]  = verts[x][y].texture;
+      vertices[x*width+y] = verts[x][y]->position;
+      normals[x*width+y]  = verts[x][y]->normal;
+      texture[x*width+y]  = verts[x][y]->texture;
     }
   }
   //creates indices array to draw picure
@@ -76,8 +76,8 @@ Cloth::Cloth(){
 void Cloth::updateVBO(){
   for (int x = 0; x < width; x++){
     for (int y = 0; y < length; y++){
-      vertices[x*width+y] = verts[x][y].position;
-      normals[x*width+y]  = verts[x][y].normal;
+      vertices[x*width+y] = verts[x][y]->position;
+      normals[x*width+y]  = verts[x][y]->normal;
     }
   }
   m_vbo->write(0, vertices, nverts*sizeof(vec3));

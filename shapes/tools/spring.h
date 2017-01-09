@@ -10,8 +10,9 @@ public:
   float getStretch();
 
 private:
-  vec3 olength;
-  Vertex origin;
-  Vertex dest;
+  vec3 init;
+  float istretch; 
+  Vertex* origin;
+  Vertex* dest;
 
 #endif /* end of include guard: SPRING_H */
