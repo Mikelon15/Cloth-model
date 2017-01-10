@@ -1,16 +1,16 @@
 #include "spring.h"
 
-Cloth::Cloth(Vertex* orig, Vertex* dest){
+Spring::Spring(Vertex* orig, Vertex* dest){
   this->origin = orig;
   this->dest = dest;
-  init = dest-orig;
+  init = dest->position-orig->position;
   i_stretch = init.length();
 }
-Cloth::~Cloth(){
+Spring::~Spring(){
 }
 //returns stretch ratio in vector
-float Cloth::getStretch(){
-  float curr_stretch = (dest-orig).length();
+float Spring::getStretch(){
+  float curr_stretch = (dest->position-origin->position).length();
   //negative means compression, positive is stretch
   return curr_stretch/i_stretch - 1;
 }

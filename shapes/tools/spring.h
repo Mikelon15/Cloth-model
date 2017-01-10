@@ -1,18 +1,19 @@
-#ifndef SPRING_H
-#define SPRING_H
+#pragma once
 
 #include "common.h"
+#include <QVector3D>
+typedef QVector3D vec3;
 
+class Spring{
 public:
-  Cloth(Vertex orig, Vertex dest);
-  ~Cloth();
+  Spring(vec3* orig, vec3* dest);
+  ~Spring();
   //returns stretch ratio in vector
   float getStretch();
 
 private:
-  vec3 init;
-  float istretch; 
-  Vertex* origin;
-  Vertex* dest;
-
-#endif /* end of include guard: SPRING_H */
+  vec3* init;
+  float i_stretch;
+  vec3* origin;
+  vec3* dest;
+};

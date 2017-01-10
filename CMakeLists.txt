@@ -44,8 +44,8 @@ set(LIBSRC  shapes/sphere.cpp shapes/cloth.cpp)
 add_library(shapes ${LIBHDRS} ${LIBSRC})
 
 # Build the library of tools
-set(TLSHDRS shapes/tools/ray.h shapes/tools/common.h)
-set(TLSSRC shapes/tools/ray.cpp shapes/tools/common.cpp)
+set(TLSHDRS shapes/tools/ray.h shapes/tools/common.h shapes/tools/vertex.h)
+set(TLSSRC shapes/tools/ray.cpp shapes/tools/common.cpp shapes/tools/vertex.cpp)
 add_library(tools ${TLSHDRS} ${TLSSRC})
 
 #normal source files

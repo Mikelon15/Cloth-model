@@ -47,7 +47,7 @@ private:
     float phase;
 
     Sphere* m_sphere;
-    Cloth* cloth; 
+    Cloth* cloth;
 
 
     int m_polymode;

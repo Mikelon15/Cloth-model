@@ -1,28 +1,41 @@
 #include "cloth.h"
 using namespace std;
 Cloth::Cloth(){
+  //world variables
   gravity = vec3(0, -10, 0);
   m_color = vec4(1,1,1,1);
-  length = 14;
-  width = 14;
+  length = 3;
+  width = 3;
+  firstDraw = true;
   nverts = length*width;
   verts = new Vertex**[width];
+  //initialize vertices
   for (int x = 0; x < width; x++){
     verts[x] = new Vertex*[length];
     for (int y = 0; y < length; y++){
-      verts[x][y] = new Vertex();
-      verts[x][y]->id = x * width + y;
-      verts[x][y]->position = vec3(x, y, 0);
-      verts[x][y]->velocity = vec3(0, 0, 0);
-      verts[x][y]->force = vec3(0, 0, 0);
-      verts[x][y]->normal = vec3(0, 0, 1);
-      verts[x][y]->texture = vec2((float)x/(length-1.), (float)y/(length-1.));
-      verts[x][y]->isStatic = true;
-      //create horizontal and vertical springs
-
+      verts[x][y] = new Vertex(x * width + y, vec3(x, y, 0), vec3(0, 0, 1),
+                              vec2((float)x/(length-1.), (float)y/(length-1.)));
+      if (x == 0){
+        verts[x][y]->isStatic = false;}
     }
   }
-
+  //add springs
+  for (int x = 0; x < width; x++){
+    for (int y = 0; y < length; y++){
+      //left spring
+      if(x != 0)
+        verts[x][y]->addSpring(verts[x-1][y]);
+      //right spring
+      if(x != width-1)
+        verts[x][y]->addSpring(verts[x+1][y]);
+      //top spring
+      if(y != length-1)
+        verts[x][y]->addSpring(verts[x][y+1]);
+      //bottom
+      if(y != 0)
+        verts[x][y]->addSpring(verts[x][y-1]);
+    }
+  }
   //this initializes the vbo information, but vertices and normals
   // will need need to be updated in the vbo after every update
   vertices = new vec3[nverts];
@@ -65,30 +78,10 @@ Cloth::Cloth(){
     m_ebo->allocate(indices, ninds*sizeof(unsigned short));
     m_ebo->release();
   }
-  delete [] vertices; vertices=NULL;
+  // delete [] vertices; vertices=NULL;
   delete [] texture; texture=NULL;
 }
 
-/*this will become a function to pack the
-  vertices position into a position array
-  that gets passed to the gpu for the tube processing
-*/
-void Cloth::updateVBO(){
-  for (int x = 0; x < width; x++){
-    for (int y = 0; y < length; y++){
-      vertices[x*width+y] = verts[x][y]->position;
-      normals[x*width+y]  = verts[x][y]->normal;
-    }
-  }
-  m_vbo->write(0, vertices, nverts*sizeof(vec3));
-  m_vbo->write(nverts*sizeof(vec3), normals, nverts*sizeof(vec3));
-}
-// QVector3D getSpringForces(Vertex* v){
-// }
-// QVector3D getSelfColForces(Vertex* v){
-// }
-// QVector3D getObjColForces(Vertex* v, Sphere* spheres, int amount){
-// }
 Cloth::~Cloth(){
 
   if (m_vbo) {
@@ -102,24 +95,10 @@ Cloth::~Cloth(){
     m_vao = NULL;
   }
 }
-void Cloth::draw(QOpenGLShaderProgram* prog){
-  if (!prog) {
-    return;
-  }
-  if (firstDraw){
-    setupVAO(prog);
-    firstDraw=false;
-  }
-  m_vao->bind();
-  m_vbo->bind();
-  m_ebo->bind();
-
-  glDrawElements(GL_TRIANGLE_STRIP, ninds, GL_UNSIGNED_SHORT, (void*)0);
-
-  m_ebo->release();
-  m_vbo->release();
-  m_vao->release();
-}
+/*this will pack the
+vertices position into a position array
+that gets passed to the gpu for the tube processing
+*/
 bool Cloth::initVBO(){
   m_vao = new QOpenGLVertexArrayObject();
   bool ok = m_vao->create();
@@ -153,10 +132,63 @@ void Cloth::setupVAO(QOpenGLShaderProgram* prog){
   prog->setAttributeBuffer("vPosition", GL_FLOAT, 0, 3, 0);
   prog->enableAttributeArray("vNormal");
   prog->setAttributeBuffer("vNormal", GL_FLOAT,
-    nverts*sizeof(vec3), 3, 0);
+  nverts*sizeof(vec3), 3, 0);
   prog->enableAttributeArray("vTexture");
   prog->setAttributeBuffer("vTexture", GL_FLOAT,
-    nverts*2*sizeof(vec3), 2, 0);
+  nverts*2*sizeof(vec3), 2, 0);
+  m_vbo->release();
+  m_vao->release();
+}
+void Cloth::updateVBO(){
+  for (int x = 0; x < width; x++){
+    for (int y = 0; y < length; y++){
+      vertices[x*width+y] = verts[x][y]->position;
+      normals[x*width+y]  = verts[x][y]->normal;
+    }
+  }
+  m_vbo->bind();
+  m_vbo->write(0, vertices, nverts*sizeof(vec3));
+  m_vbo->write(nverts*sizeof(vec3), normals, nverts*sizeof(vec3));
+  m_vbo->release();
+}
+// QVector3D getSpringForces(Vertex* v){
+// }
+// QVector3D getSelfColForces(Vertex* v){
+// }
+// QVector3D getObjColForces(Vertex* v, Sphere* spheres, int amount){
+// }
+// void Cloth::update(Sphere* spheres, int amount){
+//
+// }
+
+void Cloth::update(float delta){
+  for (int x = 0; x < width; x++){
+    for (int y = 0; y < length; y++){
+      if (!verts[x][y]->isStatic){
+        verts[x][y]->position += delta*verts[x][y]->velocity;
+        verts[x][y]->velocity += delta*verts[x][y]->force;
+        verts[x][y]->force = gravity+verts[x][y]->getSpringForces();
+      }
+    }
+  }
+  updateVBO();
+}
+void Cloth::draw(QOpenGLShaderProgram* prog){
+  update(.01);
+  if (!prog) {
+    return;
+  }
+  if (firstDraw){
+    setupVAO(prog);
+    firstDraw=false;
+  }
+  m_vao->bind();
+  m_vbo->bind();
+  m_ebo->bind();
+
+  glDrawElements(GL_TRIANGLE_STRIP, ninds, GL_UNSIGNED_SHORT, (void*)0);
+
+  m_ebo->release();
   m_vbo->release();
   m_vao->release();
 }

@@ -38,9 +38,9 @@ void MyPanelOpenGL::initializeGL()
     createShaders();
 
     //timer for updating
-    // timer = new QTimer(this);
-    // connect(timer, SIGNAL(timeout()), this, SLOT(step()));
-    // timer->start(100); // trigger every 30ms
+    timer = new QTimer(this);
+    connect(timer, SIGNAL(timeout()), this, SLOT(step()));
+    timer->start(30); // trigger every 30ms
 
     //initialize cloth object
     m_model.setToIdentity();

@@ -7,15 +7,18 @@
 #include "sphere.h"
 #include "tools/common.h"
 #include "tools/ray.h"
+#include "tools/vertex.h"
 
 typedef QVector2D vec2;
 typedef QVector3D vec3;
 typedef QVector4D vec4;
+
 class Cloth{
 
 public:
   Cloth();
   ~Cloth();
+  void update(float delta);
   void draw(QOpenGLShaderProgram* prog);
   // void update(Sphere* spheres, int amount);
 
